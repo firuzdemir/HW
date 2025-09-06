@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HW Questions Viewer</title>
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+
+  <!-- ✅ MathJax config -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" defer></script>
+
+  <!-- ✅ External LaTeX data -->
+  <script src="HWdata.js" defer></script>
+
+<style>
+body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: none; margin: 2em; }
+#latex-display, #latex-display * { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: none; }
+
+/* pre, pre * { font-family: 'Times New Roman', Times, serif !important; font-size: 18px !important; } */
+
+/* .math, mjx-math, .katex, span.math { font-family: 'Times New Roman', Times, serif !important; font-size: 20px !important; } */
+
+.search-wrapper { display: flex; justify-content: center; margin-bottom: 1em; }
+#search { width: 80%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+#message { color: red; margin-top: 1em; }
+
+/* #latex-display { margin-top: 1.5em; font-size: 1.2em; } */
+
+img { max-width: 100%; display: inline-block; margin-right: 1em; vertical-align: middle; height: auto; }
+/* @page { size: 8.5in 11in; margin: 0.2em; } */
+@media print { body { margin: 0.2em; } img { max-width: none; height: auto; display: block; margin-bottom: 1em; }
+}
+.coveredImg { opacity: 0.0; pointer-events: none; }
+
+sp {
+  display: inline-block;
+  width: 12%; /* Avoid vw for consistent spacing; use em or cm.*/
+  height: 0;  /* or 0 — 'none' is not valid */
+  vertical-align: baseline; /* or middle — 'left' is invalid */
+}
+
+</style>
+
+<script defer>
+    document.addEventListener("DOMContentLoaded", () => {
+      const input = document.getElementById("search");
+      const display = document.getElementById("latex-display");
+      const message = document.getElementById("message");
+
+      function renderQuestion(index) {
+        if (index === 0) {
+          let html = '';
+          for (let key in window.Defs) {
+            let content = process(window.Defs[key].content);
+            const imgs = [...content.matchAll(/<img[^>]*>/gi)];
+            if (imgs[1]) content = content.replace(imgs[1][0], imgs[1][0].replace('<img', '<img class="coveredImg"'));
+            html += `<div><strong>${key}</strong> — ${content}</div><hr>`;
+          }
+          display.innerHTML = html;
+          message.textContent = '';
+          MathJax.typesetPromise([display]);
+        } else if (window.Defs[index]) {
+          let content = process(window.Defs[index].content);
+          const imgs = [...content.matchAll(/<img[^>]*>/gi)];
+          if (imgs[1]) content = content.replace(imgs[1][0], imgs[1][0].replace('<img', '<img class="coveredImg"'));
+          display.innerHTML = `<strong>${index}</strong> — ${content}`;
+          message.textContent = '';
+          MathJax.typesetPromise([display]);
+        } else {
+          display.innerHTML = '';
+          message.textContent = "No question found for index: " + index;
+        }
+      }
+
+      function process(content) {
+        const m = content.match(/<tb[^>]*>([\s\S]*?)<\/tb>/i);
+        if (m) content = content.replace(m[1], m[1].replace(/\n(?!\s*<br>)/g, '\t').trim());
+        return content;
+      }
+
+      input.addEventListener("focus", () => { input.value = ""; message.textContent = ""; });
+       // input.addEventListener("input", () => { const n = parseInt(input.value.trim()); 
+       // if (!isNaN(n)) renderQuestion(n); });
+	input.addEventListener("input", () => {
+	const n = parseInt(input.value.trim());
+	if (!isNaN(n) && n !== 0) {
+	renderQuestion(n);
+	} else if (n === 0) {
+	display.innerHTML = '';
+	message.textContent = 'Enter a specific question number (not 0).';
+	}
+       });
+
+
+      // renderQuestion(0);  // uncomment this to print them All
+    });
+</script>
+
+<!--  
+<script defer>
+document.addEventListener("DOMContentLoaded", () => {
+  const questions = [
+    {id:  4067   , space:'10%'},
+    {id:  4567   , space:'10%'},
+    {id:  2531   , space:'10%'},
+    {id:  9914   , space:'10%'},
+    {id:  9783   , space:'10%'},
+    
+    {id:  4151   , space:'10%'},
+    {id:  3692   , space:'10%'},
+    {id:  9512   , space:'10%'},
+    {id:  9693   , space:'10%'},
+    {id:  9913   , space:'10%'},
+    
+    {id:  1009   , space:'10%'},
+    {id:  1744   , space:'10%'},
+    {id:  9502   , space:'10%'},
+    {id:  6735   , space:'10%'},
+    {id:  5932   , space:'10%'},
+  ];
+  const div = document.getElementById("latex-display");
+  div.innerHTML = questions.map(({id, space}, i) => {
+    let c = window.Defs?.[id]?.content || `<span style="color:red;">Missing: ${id}</span>`;
+    const imgs = c.match(/<img[^>]*>/gi);
+    if(imgs?.[1]) c = c.replace(imgs[1], imgs[1].replace('<img', '<img class="coveredImg"'));
+    return `<div style="margin-bottom:${space}"><b>${i+1}.</b> ${c}</div>`;
+  }).join('');
+  MathJax.typesetPromise([div]);
+});
+</script>
+--> 
+
+
+<script>
+// Redirect to the clean URL by removing the query string ?i=1
+if (window.location.search.includes('?i=1')) { window.history.replaceState(null, null, window.location.pathname); }
+</script>
+
+</head>
+
+<body>
+
+<!--  <h1 style="text-align: center;">Search HW Questions</h1>  --> 
+
+<div class="search-wrapper">
+  <input type="text" id="search" placeholder="Enter question number (e.g., 9159, 7640, 6139...)" />
+</div>
+
+<div id="message"></div>
+<div id="latex-display"></div>
+
+
+
+<!-- Add new random unused ID -->
+<script>
+  (function addRandom() {
+    if (!window.Defs) return setTimeout(addRandom, 50);
+    let id;
+    do { id = Math.floor(Math.random() * 9000) + 1000 } while (Defs[id]);
+    Defs[id] = { content: `Random unused ID: ${id}` };
+    console.log("Added random unused ID:", id);
+    document.body.insertAdjacentHTML("beforeend", `<div style="color:#DBD1D5;margin-top:1em"> ${id}</div>`);
+  })();
+</script>
+
+
+
+
+
+
+</body>
+</html>
+
